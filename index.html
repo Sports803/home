@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Sports 803 — All Sports Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --bg: #080808;
+      --bg2: #0f0f0f;
+      --bg3: #171717;
+      --bg4: #1e1e1e;
+      --red: #e8192c;
+      --red2: #ff2d42;
+      --gold: #f5b800;
+      --green: #00e676;
+      --blue: #1a78c2;
+      --text: #f0f0f0;
+      --text-dim: #888;
+      --text-mid: #bbb;
+      --border: rgba(255, 255, 255, 0.07);
+      --card-radius: 12px;
+      --font-head: 'Barlow Condensed', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --max-width: 1400px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      height: 100%;
+    }
+
+    /* TOP BAR */
+    #top-bar {
+      flex-shrink: 0;
+      height: 60px;
+      background: rgba(8, 8, 8, 0.96);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .logo {
+      font-family: var(--font-head);
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      background: linear-gradient(135deg, #fff, #e0e0e0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, var(--red), #ff5a6e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    #top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .top-icon {
+      font-size: 22px;
+      opacity: 0.8;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .top-icon:hover {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    #live-badge {
+      background: var(--red);
+      color: #fff;
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      animation: live-pulse 1.5s infinite;
+    }
+
+    @keyframes live-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* SCREENS */
+    #screens {
+      flex: 1;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .screen {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .screen.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .screen-content {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      width: 100%;
+      padding-bottom: 80px;
+    }
+
+    /* BOTTOM NAV */
+    #bottom-nav {
+      flex-shrink: 0;
+      height: 68px;
+      background: rgba(10, 10, 10, 0.96);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-evenly;
+      position: sticky;
+      bottom: 0;
+      z-index: 15;
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: 0.2s;
+      padding: 8px 0;
+      border-radius: 30px;
+    }
+
+    .nav-icon {
+      font-size: 22px;
+    }
+
+    .nav-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .nav-btn.active .nav-label {
+      color: var(--red);
+    }
+
+    .nav-btn.active .nav-icon {
+      transform: translateY(-2px);
+      color: var(--red);
+    }
+
+    /* HERO */
+    #hero {
+      position: relative;
+      height: 280px;
+      overflow: hidden;
+      margin: 12px 16px 8px;
+      border-radius: 20px;
+    }
+
+    @media (min-width: 1024px) {
+      #hero {
+        height: 420px;
+        margin: 20px auto 16px;
+        max-width: 1300px;
+      }
+    }
+
+    .hero-slides {
+      display: flex;
+      height: 100%;
+      transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    }
+
+    .hero-slide {
+      min-width: 100%;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .hero-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.3) 50%, transparent 100%);
+    }
+
+    .hero-content {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px;
+    }
+
+    .hero-sport-tag {
+      display: inline-block;
+      background: var(--red);
+      font-family: var(--font-head);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+    }
+
+    .hero-title {
+      font-family: var(--font-head);
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.2;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+
+    @media (min-width: 768px) {
+      .hero-title { font-size: 36px; }
+    }
+
+    .hero-dots {
+      position: absolute;
+      bottom: 16px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .hero-dot {
+      width: 8px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .hero-dot.active {
+      background: var(--red);
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    /* SPORT PILLS */
+    #sport-pills-wrap {
+      overflow-x: auto;
+      padding: 8px 16px 12px;
+      scrollbar-width: thin;
+    }
+
+    #sport-pills {
+      display: flex;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .sport-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .sport-pill.active, .sport-pill:active {
+      background: var(--red);
+      border-color: var(--red);
+      transform: scale(0.96);
+    }
+
+    /* SECTIONS */
+    .section {
+      margin: 16px 0 8px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0 20px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: '';
+      width: 4px;
+      height: 22px;
+      background: var(--red);
+      border-radius: 2px;
+    }
+
+    .section-see-all {
+      font-size: 13px;
+      color: var(--red);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* HORIZONTAL SCROLL */
+    .h-scroll-wrap {
+      overflow-x: auto;
+      padding: 0 16px;
+      scrollbar-width: thin;
+    }
+
+    .h-scroll {
+      display: flex;
+      gap: 14px;
+    }
+
+    /* POST CARD */
+    .post-card {
+      width: 180px;
+      flex-shrink: 0;
+      background: var(--bg3);
+      border-radius: var(--card-radius);
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .post-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    @media (min-width: 1200px) {
+      .post-card { width: 220px; }
+    }
+
+    .post-card-img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+    }
+
+    .post-card-img-wrap {
+      position: relative;
+    }
+
+    .live-tag {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--red);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 3px;
+      letter-spacing: 1px;
+    }
+
+    .post-card-body {
+      padding: 10px;
+    }
+
+    .post-card-sport {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--red);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .post-card-title {
+      font-family: var(--font-head);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin-top: 4px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* WIDE CARD */
+    .wide-card {
+      width: 320px;
+      flex-shrink: 0;
+      background: var(--bg3);
+      border-radius: var(--card-radius);
+      display: flex;
+      gap: 12px;
+      padding: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .wide-card:hover {
+      background: var(--bg4);
+      transform: scale(0.98);
+    }
+
+    .wide-card-img {
+      width: 100px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    /* SCORE CARD */
+    .score-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--card-radius);
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+
+    .score-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .score-team {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .score-team.right {
+      flex-direction: row-reverse;
+      text-align: right;
+    }
+
+    .score-team-logo {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+    }
+
+    .score-team-name {
+      font-weight: 700;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .score-nums {
+      font-family: var(--font-head);
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    /* SPORTS GRID */
+    .sports-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 14px;
+      padding: 16px;
+    }
+
+    @media (min-width: 640px) {
+      .sports-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+    }
+
+    .sport-grid-item {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .sport-grid-item:active {
+      background: rgba(232, 25, 44, 0.2);
+      border-color: var(--red);
+    }
+
+    .sport-emoji {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    /* FIGHTER CARD */
+    .fighter-card {
+      background: var(--bg3);
+      border-radius: var(--card-radius);
+      margin-bottom: 10px;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .fighter-card-header {
+      background: linear-gradient(135deg, #1e0a0a, #2c0c0c);
+      padding: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 800;
+    }
+
+    /* TICKER */
+    #score-ticker-wrap {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 8px 0;
+    }
+
+    #score-ticker {
+      display: inline-block;
+      animation: tickerScroll 40s linear infinite;
+    }
+
+    @keyframes tickerScroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 24px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    /* RESPONSIVE LAYOUT */
+    @media (min-width: 1024px) {
+      .screen-content {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      .h-scroll-wrap {
+        padding: 0;
+      }
+      .section-header {
+        padding: 0;
+      }
+      .post-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+      .post-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    /* utilities */
+    .empty-state {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--text-dim);
+    }
+    #toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1f1f1f;
+      border-left: 4px solid var(--red);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 500;
+      opacity: 0;
+      transition: 0.2s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+    .skeleton {
+      background: linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+      background-size: 200% auto;
+      animation: shimmer 1.2s infinite;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="top-bar">
+    <div class="logo">SPORTS <span>803</span></div>
+    <div id="top-bar-right">
+      <div id="live-badge" onclick="switchTab('live')">● LIVE</div>
+      <div class="top-icon" onclick="switchTab('search')">🔍</div>
+      <div class="top-icon" onclick="switchTab('profile')">👤</div>
+    </div>
+  </div>
+
+  <div id="screens">
+    <!-- HOME SCREEN -->
+    <div class="screen active" id="screen-home">
+      <div class="screen-content">
+        <div id="score-ticker-wrap"><div id="score-ticker">🏆 Loading live scores...</div></div>
+        <div id="hero"><div class="hero-slides" id="hero-slides"></div><div class="hero-dots" id="hero-dots"></div></div>
+        <div id="sport-pills-wrap"><div id="sport-pills"></div></div>
+        <div class="section"><div class="section-header"><div class="section-title">🔥 Live Scores</div><div class="section-see-all" onclick="switchTab('live')">All →</div></div><div id="home-scores"></div></div>
+        <div id="dynamic-sections-container"></div>
+      </div>
+    </div>
+
+    <!-- LIVE SCREEN -->
+    <div class="screen" id="screen-live"><div class="screen-content"><div id="live-content" style="padding: 16px;"></div></div></div>
+
+    <!-- SPORTS SCREEN -->
+    <div class="screen" id="screen-sports"><div class="screen-content"><div class="sports-grid" id="sports-grid"></div></div></div>
+
+    <!-- SEARCH SCREEN -->
+    <div class="screen" id="screen-search"><div class="screen-content"><div class="search-bar-wrap"><div class="search-bar"><span>🔍</span><input type="text" id="search-input" placeholder="Search matches, teams, sports..."><span id="search-clear" style="display:none;cursor:pointer">✕</span></div></div><div id="search-trending"><div class="trending-title">Trending</div><div id="trending-tags"></div></div><div id="search-results"></div></div></div>
+
+    <!-- PROFILE SCREEN -->
+    <div class="screen" id="screen-profile"><div class="screen-content"><div class="profile-header"><div><div style="font-size:28px;font-weight:800">⚡ Sports 803</div><div style="color:var(--text-dim)">Your sports hub</div></div><div class="profile-stats" style="display:flex;gap:16px;margin-top:16px"><div><div id="stat-watched">0</div><div>Watched</div></div><div><div id="stat-liked">0</div><div>Liked</div></div><div><div id="stat-saved">0</div><div>Saved</div></div></div></div><div id="history-list" style="padding:16px"></div></div></div>
+  </div>
+
+  <nav id="bottom-nav">
+    <div class="nav-btn active" data-tab="home" onclick="switchTab('home')"><span class="nav-icon">🏠</span><span class="nav-label">Home</span></div>
+    <div class="nav-btn" data-tab="live" onclick="switchTab('live')"><span class="nav-icon">📺</span><span class="nav-label">Live</span></div>
+    <div class="nav-btn" data-tab="sports" onclick="switchTab('sports')"><span class="nav-icon">🏟️</span><span class="nav-label">Sports</span></div>
+    <div class="nav-btn" data-tab="search" onclick="switchTab('search')"><span class="nav-icon">🔍</span><span class="nav-label">Search</span></div>
+    <div class="nav-btn" data-tab="profile" onclick="switchTab('profile')"><span class="nav-icon">👤</span><span class="nav-label">You</span></div>
+  </nav>
+  <div id="toast"></div>
+</div>
+
+<script>
+  const BLOG = 'https://sports803livestream.blogspot.com';
+  const FEED = BLOG + '/feeds/posts/default';
+  let allPostsCache = [];
+  let dynamicSectionsCreated = false;
+
+  // Helper functions
+  function toast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+  function openPost(url) { let hist = JSON.parse(localStorage.getItem('s803history') || '[]'); if(!hist.includes(url)){hist.unshift(url); if(hist.length>50) hist.pop(); localStorage.setItem('s803history',JSON.stringify(hist));} window.location.href = url; }
+  function openLabel(label) { window.location.href = BLOG + '/search/label/' + encodeURIComponent(label); }
+  function switchTab(tab) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(`screen-${tab}`).classList.add('active'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); document.querySelector(`.nav-btn[data-tab="${tab}"]`)?.classList.add('active'); if(tab==='live' && !window.liveLoaded) loadLiveScreen(); if(tab==='sports') renderSportsGrid(); if(tab==='profile') updateProfileStats(); }
+  function timeAgo(dateStr) { const d=new Date(dateStr), diff=(Date.now()-d)/1000; if(diff<3600) return Math.floor(diff/60)+'m ago'; if(diff<86400) return Math.floor(diff/3600)+'h ago'; if(diff<604800) return Math.floor(diff/86400)+'d ago'; return d.toLocaleDateString('en',{month:'short',day:'numeric'}); }
+  function getThumb(entry) { if(entry.media$thumbnail) return entry.media$thumbnail.url.replace('/s72-c/','/w400-h225-c/'); const content = (entry.content?.$t)||(entry.summary?.$t)||''; const m = content.match(/src="([^"]+\.(jpg|jpeg|png|webp|gif)[^"]*)"/i); return m ? m[1] : null; }
+  function getLabel(entry) { return entry.category?.length ? entry.category[0].term : 'Sports'; }
+
+  function fetchFeed(label, max, callback) {
+    let url = label === 'all' ? `${FEED}?alt=json&max-results=${max}` : `${FEED}/-/${encodeURIComponent(label)}?alt=json&max-results=${max}`;
+    const script = document.createElement('script'), cb = '_cb_'+Date.now()+Math.random();
+    window[cb] = data => { delete window[cb]; script.remove(); callback(data.feed?.entry || []); };
+    script.src = url + '&callback=' + cb; script.onerror = () => { callback([]); delete window[cb]; };
+    document.head.appendChild(script);
+  }
+
+  function makeCard(entry, isLive=false) {
+    const url = entry.link.find(l=>l.rel==='alternate')?.href || BLOG;
+    const div = document.createElement('div'); div.className = 'post-card'; div.onclick = () => openPost(url);
+    div.innerHTML = `<div class="post-card-img-wrap"><img class="post-card-img" src="${getThumb(entry)||''}" loading="lazy" onerror="this.style.background='#222'">${isLive?'<div class="live-tag">LIVE</div>':''}</div><div class="post-card-body"><div class="post-card-sport">${getLabel(entry)}</div><div class="post-card-title">${entry.title.$t}</div><div class="post-card-time">${timeAgo(entry.published.$t)}</div></div>`;
+    return div;
+  }
+
+  function makeWideCard(entry) {
+    const url = entry.link.find(l=>l.rel==='alternate')?.href || BLOG;
+    const div = document.createElement('div'); div.className = 'wide-card'; div.onclick = () => openPost(url);
+    div.innerHTML = `<img class="wide-card-img" src="${getThumb(entry)||''}" loading="lazy"><div><div class="post-card-sport">${getLabel(entry)}</div><div class="post-card-title" style="font-size:14px;font-weight:700">${entry.title.$t}</div><div style="font-size:11px;color:var(--text-dim)">${timeAgo(entry.published.$t)}</div></div>`;
+    return div;
+  }
+
+  function populateRow(containerId, label, max, useWide=false) {
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    fetchFeed(label, max, entries => {
+      container.innerHTML = '';
+      if(!entries.length){ container.innerHTML = '<div style="padding:12px;color:gray">No posts</div>'; return; }
+      entries.forEach(e => container.appendChild(useWide ? makeWideCard(e) : makeCard(e)));
+    });
+  }
+
+  // DYNAMIC SECTIONS: all sports from blog labels
+  function buildDynamicSections() {
+    if(dynamicSectionsCreated) return;
+    fetchFeed('all', 60, entries => {
+      allPostsCache = entries;
+      const labelMap = new Map();
+      entries.forEach(e => {
+        let lbl = getLabel(e);
+        if(lbl && !['Sports','Uncategorized','General'].includes(lbl)) labelMap.set(lbl, (labelMap.get(lbl)||0)+1);
+      });
+      const sortedLabels = Array.from(labelMap.entries()).sort((a,b)=>b[1]-a[1]).map(v=>v[0]);
+      const hardcoded = ['Premier League','champions league','F1','MotoGP','NBA','ufc','wwe','NFL','laliga','serie a','bundesliga','ligue 1','tennis','Cricket','Rugby','NHL','Golf'];
+      const container = document.getElementById('dynamic-sections-container');
+      container.innerHTML = '';
+      sortedLabels.forEach(label => {
+        if(hardcoded.some(h=>h.toLowerCase()===label.toLowerCase())) return; // skip already existing sections
+        if(label.length<2) return;
+        const sectionId = `dyn-${label.replace(/\s/g,'')}`;
+        const sectionHtml = `<div class="section" id="section-${sectionId}"><div class="section-header"><div class="section-title">🏆 ${label}</div><div class="section-see-all" onclick="openLabel('${label.replace(/'/g, "\\'")}')">More →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-${sectionId}"></div></div></div>`;
+        container.insertAdjacentHTML('beforeend', sectionHtml);
+        populateRow(`row-${sectionId}`, label, 8, false);
+      });
+      dynamicSectionsCreated = true;
+    });
+  }
+
+  // HERO
+  let heroEntries = [], heroIndex=0, heroInterval;
+  function buildHero(entries) {
+    heroEntries = entries.slice(0,6);
+    const slides = document.getElementById('hero-slides');
+    const dotsDiv = document.getElementById('hero-dots');
+    slides.innerHTML = ''; dotsDiv.innerHTML = '';
+    heroEntries.forEach((e,i) => {
+      const slide = document.createElement('div'); slide.className='hero-slide';
+      const thumb = getThumb(e) || '';
+      slide.innerHTML = `<img src="${thumb}" onerror="this.src='https://placehold.co/1200x600/1a1a1a/red?text=Sports+803'"><div class="hero-gradient"></div><div class="hero-content"><div class="hero-sport-tag">${getLabel(e)}</div><div class="hero-title">${e.title.$t}</div><div class="hero-meta">${timeAgo(e.published.$t)}</div></div>`;
+      slide.onclick = () => openPost(e.link.find(l=>l.rel==='alternate')?.href||BLOG);
+      slides.appendChild(slide);
+      const dot = document.createElement('div'); dot.className='hero-dot'; if(i===0) dot.classList.add('active');
+      dot.onclick = (ev) => { ev.stopPropagation(); goHero(i); };
+      dotsDiv.appendChild(dot);
+    });
+    goHero(0);
+    if(heroInterval) clearInterval(heroInterval);
+    heroInterval = setInterval(() => goHero((heroIndex+1)%heroEntries.length), 5500);
+  }
+  function goHero(i) { heroIndex=i; document.getElementById('hero-slides').style.transform=`translateX(-${i*100}%`; document.querySelectorAll('.hero-dot').forEach((d,idx)=>d.classList.toggle('active',idx===i)); }
+
+  // SCORE TICKER + LIVE SCORES (ESPN)
+  function loadScoreTicker() {
+    fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard').then(r=>r.json()).then(data=>{
+      let items = [];
+      (data.events||[]).slice(0,6).forEach(ev=>{
+        const comp=ev.competitions?.[0]; if(!comp) return;
+        const home=comp.competitors.find(c=>c.homeAway==='home'), away=comp.competitors.find(c=>c.homeAway==='away');
+        if(home&&away) items.push(`${away.team.abbreviation||away.team.name} ${away.score} - ${home.score} ${home.team.abbreviation||home.team.name}`);
+      });
+      const tickerDiv = document.getElementById('score-ticker');
+      if(items.length) tickerDiv.innerHTML = items.map(t=>`<span class="ticker-item">⚽ ${t}</span>`).join('') + items.map(t=>`<span class="ticker-item">⚽ ${t}</span>`).join('');
+      else tickerDiv.innerHTML = '<span class="ticker-item">🏆 Latest sports updates on Sports 803</span>';
+    }).catch(()=>{});
+  }
+
+  function loadHomeScores() {
+    fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard').then(r=>r.json()).then(data=>{
+      const container=document.getElementById('home-scores');
+      container.innerHTML='';
+      (data.events||[]).slice(0,3).forEach(ev=>{
+        const comp=ev.competitions[0], home=comp.competitors.find(c=>c.homeAway==='home'), away=comp.competitors.find(c=>c.homeAway==='away');
+        if(home&&away){
+          const div=document.createElement('div'); div.className='score-card';
+          div.innerHTML=`<div class="score-row"><div class="score-team"><img class="score-team-logo" src="${away.team.logo||''}"><span>${away.team.shortDisplayName||away.team.name}</span></div><div class="score-nums">${away.score} - ${home.score}</div><div class="score-team right"><img class="score-team-logo" src="${home.team.logo||''}"><span>${home.team.shortDisplayName||home.team.name}</span></div></div>`;
+          div.onclick=()=>openLabel('Premier League');
+          container.appendChild(div);
+        }
+      });
+    }).catch(()=>{});
+  }
+
+  // LIVE SCREEN
+  window.liveLoaded=false;
+  function loadLiveScreen(){
+    if(window.liveLoaded) return;
+    window.liveLoaded=true;
+    const container=document.getElementById('live-content');
+    container.innerHTML='<div style="text-align:center;padding:20px">Loading live events...</div>';
+    const leagues=[{sport:'soccer',key:'eng.1',name:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 EPL'},{sport:'soccer',key:'uefa.champions',name:'⭐ UCL'},{sport:'soccer',key:'esp.1',name:'🇪🇸 LaLiga'},{sport:'basketball',key:'nba',name:'🏀 NBA'},{sport:'football',key:'nfl',name:'🏈 NFL'},{sport:'mma',key:'ufc',name:'🥊 UFC'}];
+    let loaded=0;
+    leagues.forEach(ls=>{
+      fetch(`https://site.api.espn.com/apis/site/v2/sports/${ls.sport}/${ls.key}/scoreboard`).then(r=>r.json()).then(data=>{
+        const events=(data.events||[]).filter(e=>{let s=e.competitions?.[0]?.status?.type?.state; return s==='in'||s==='post';});
+        if(events.length){
+          const header=document.createElement('div'); header.className='live-league-header'; header.style.cssText='font-weight:800;padding:12px 16px;background:#111;margin-top:8px'; header.innerText=ls.name;
+          container.appendChild(header);
+          events.forEach(ev=>{
+            const comp=ev.competitions[0], home=comp.competitors.find(c=>c.homeAway==='home'), away=comp.competitors.find(c=>c.homeAway==='away');
+            if(home&&away){
+              const card=document.createElement('div'); card.className='score-card';
+              card.innerHTML=`<div class="score-row"><div class="score-team"><img class="score-team-logo" src="${away.team?.logo||''}"><span>${away.team?.shortDisplayName||away.team?.name||'?'}</span></div><div class="score-nums">${away.score||0} - ${home.score||0}</div><div class="score-team right"><img class="score-team-logo" src="${home.team?.logo||''}"><span>${home.team?.shortDisplayName||home.team?.name||'?'}</span></div></div>`;
+              card.onclick=()=>openLabel(ls.name.split(' ').pop());
+              container.appendChild(card);
+            }
+          });
+        }
+        loaded++;
+        if(loaded===leagues.length && container.children.length===0) container.innerHTML='<div class="empty-state">📺 No live matches now, check schedule.</div>';
+      }).catch(()=>{loaded++;});
+    });
+  }
+
+  // SPORTS GRID
+  const ALL_SPORTS = [
+    {emoji:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',name:'Premier League',label:'Premier League'},{emoji:'⭐',name:'Champions Lg',label:'champions league'},{emoji:'🇪🇸',name:'La Liga',label:'laliga'},{emoji:'🇮🇹',name:'Serie A',label:'serie a'},{emoji:'🇩🇪',name:'Bundesliga',label:'bundesliga'},{emoji:'🇫🇷',name:'Ligue 1',label:'ligue 1'},{emoji:'🏎️',name:'Formula 1',label:'F1'},{emoji:'🏍️',name:'MotoGP',label:'MotoGP'},{emoji:'🏈',name:'NFL',label:'NFL'},{emoji:'🏀',name:'NBA',label:'NBA'},{emoji:'🥊',name:'UFC/MMA',label:'ufc'},{emoji:'💪',name:'WWE',label:'wwe'},{emoji:'🎾',name:'Tennis',label:'tennis'},{emoji:'🏏',name:'Cricket',label:'Cricket'},{emoji:'🏉',name:'Rugby',label:'Rugby'},{emoji:'🏒',name:'NHL',label:'NHL'},{emoji:'⛳',name:'Golf',label:'Golf'},{emoji:'🚴',name:'Cycling',label:'Cycling'}
+  ];
+  function renderSportsGrid(){
+    const grid=document.getElementById('sports-grid');
+    if(grid.children.length) return;
+    ALL_SPORTS.forEach(s=>{
+      const div=document.createElement('div'); div.className='sport-grid-item';
+      div.innerHTML=`<div class="sport-emoji">${s.emoji}</div><div class="sport-name">${s.name}</div>`;
+      div.onclick=()=>openLabel(s.label);
+      grid.appendChild(div);
+    });
+  }
+
+  // SEARCH
+  let searchTimer;
+  document.getElementById('search-input').addEventListener('input',function(){
+    const q=this.value.trim(); document.getElementById('search-clear').style.display=q?'block':'none';
+    clearTimeout(searchTimer);
+    if(!q){ document.getElementById('search-results').innerHTML=''; document.getElementById('search-trending').style.display=''; return; }
+    document.getElementById('search-trending').style.display='none';
+    searchTimer=setTimeout(()=>{
+      const resultsDiv=document.getElementById('search-results');
+      resultsDiv.innerHTML='<div style="padding:20px;text-align:center">Searching...</div>';
+      fetchFeed('all', 30, entries=>{
+        const filtered=entries.filter(e=>e.title.$t.toLowerCase().includes(q.toLowerCase())||getLabel(e).toLowerCase().includes(q.toLowerCase()));
+        resultsDiv.innerHTML='';
+        if(!filtered.length){ resultsDiv.innerHTML='<div class="empty-state">🔍 No results</div>'; return; }
+        filtered.forEach(e=>{
+          const url=e.link.find(l=>l.rel==='alternate')?.href||BLOG;
+          const div=document.createElement('div'); div.className='list-card'; div.style.cssText='display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid #222;cursor:pointer';
+          div.innerHTML=`<img src="${getThumb(e)||''}" style="width:70px;height:50px;object-fit:cover;border-radius:8px"><div><div style="color:var(--red);font-size:12px">${getLabel(e)}</div><div style="font-weight:700">${e.title.$t}</div><div style="font-size:11px;color:#aaa">${timeAgo(e.published.$t)}</div></div>`;
+          div.onclick=()=>openPost(url);
+          resultsDiv.appendChild(div);
+        });
+      });
+    },400);
+  });
+  function clearSearch(){ document.getElementById('search-input').value=''; document.getElementById('search-clear').style.display='none'; document.getElementById('search-results').innerHTML=''; document.getElementById('search-trending').style.display=''; }
+  function buildTrending(){ const trends=['Premier League','UCL','F1','NBA','UFC','WWE','Tennis']; const container=document.getElementById('trending-tags'); container.innerHTML=''; trends.forEach(t=>{ const span=document.createElement('span'); span.className='trending-tag'; span.textContent=t; span.onclick=()=>{ document.getElementById('search-input').value=t; doSearchManually(t); }; container.appendChild(span); }); }
+  function doSearchManually(q){ document.getElementById('search-input').value=q; document.getElementById('search-clear').style.display='block'; document.getElementById('search-trending').style.display='none'; fetchFeed('all',30,entries=>{ const filtered=entries.filter(e=>e.title.$t.toLowerCase().includes(q.toLowerCase())); const resultsDiv=document.getElementById('search-results'); resultsDiv.innerHTML=''; filtered.forEach(e=>{ const div=document.createElement('div'); div.className='list-card'; div.innerHTML=`<div>${e.title.$t}</div>`; div.onclick=()=>openPost(e.link.find(l=>l.rel==='alternate')?.href); resultsDiv.appendChild(div);});});}
+  function updateProfileStats(){ const hist=JSON.parse(localStorage.getItem('s803history')||'[]'); document.getElementById('stat-watched').innerText=hist.length; const listDiv=document.getElementById('history-list'); listDiv.innerHTML=hist.length?hist.slice(0,8).map(url=>`<div style="padding:8px 0;border-bottom:1px solid #222;cursor:pointer" onclick="openPost('${url}')">▶ ${url.split('/').pop().slice(0,40)}</div>`).join(''):'<div style="color:gray">No history yet</div>'; }
+
+  // POPULATE FIXED SECTIONS
+  function initSections(){
+    populateRow('row-epl','Premier League',8); populateRow('row-ucl','champions league',6); populateRow('row-nba','NBA',6); populateRow('row-laliga','laliga',6); populateRow('row-wwe','wwe',6); populateRow('row-nfl','NFL',6); populateRow('row-motogp','MotoGP',6); populateRow('row-f1','F1',6); populateRow('row-ufc','ufc',6); populateRow('highlights-list','highlights',5);
+  }
+
+  // HTML dynamic containers for fixed rows (we need to ensure these exist in DOM)
+  function injectMissingContainers(){
+    const homeDiv = document.querySelector('#screen-home .screen-content');
+    if(!document.getElementById('row-epl')) homeDiv.insertAdjacentHTML('beforeend', `<div class="section"><div class="section-header"><div class="section-title">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</div><div class="section-see-all" onclick="openLabel('Premier League')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-epl"></div></div></div><div class="section"><div class="section-header"><div class="section-title">⭐ UCL</div><div class="section-see-all" onclick="openLabel('champions league')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-ucl"></div></div></div><div class="section"><div class="section-header"><div class="section-title">🏎️ F1</div><div class="section-see-all" onclick="openLabel('F1')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-f1"></div></div></div><div class="section"><div class="section-header"><div class="section-title">🏍️ MotoGP</div><div class="section-see-all" onclick="openLabel('MotoGP')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-motogp"></div></div></div><div class="section"><div class="section-header"><div class="section-title">🥊 UFC</div><div class="section-see-all" onclick="openLabel('ufc')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-ufc"></div></div></div><div class="section"><div class="section-header"><div class="section-title">🏀 NBA</div><div class="section-see-all" onclick="openLabel('NBA')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-nba"></div></div></div><div class="section"><div class="section-header"><div class="section-title">🏈 NFL</div><div class="section-see-all" onclick="openLabel('NFL')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-nfl"></div></div></div><div class="section"><div class="section-header"><div class="section-title">🇪🇸 LaLiga</div><div class="section-see-all" onclick="openLabel('laliga')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-laliga"></div></div></div><div class="section"><div class="section-header"><div class="section-title">💪 WWE</div><div class="section-see-all" onclick="openLabel('wwe')">All →</div></div><div class="h-scroll-wrap"><div class="h-scroll" id="row-wwe"></div></div></div><div class="section"><div class="section-header"><div class="section-title">🎬 Highlights</div><div class="section-see-all" onclick="openLabel('highlights')">All →</div></div><div id="highlights-list"></div></div>`);
+    initSections();
+  }
+
+  // SPORT PILLS
+  function buildSportPills(){
+    const pillsDiv = document.getElementById('sport-pills');
+    const topSports = ['All','Premier League','UCL','F1','NBA','UFC','WWE','NFL','Tennis'];
+    topSports.forEach(s=>{
+      const pill = document.createElement('div'); pill.className = 'sport-pill'; if(s==='All') pill.classList.add('active');
+      pill.innerHTML = s==='All' ? '🏟️ All' : s;
+      pill.onclick = () => { if(s==='All') switchTab('home'); else openLabel(s); };
+      pillsDiv.appendChild(pill);
+    });
+  }
+
+  // INIT
+  fetchFeed('all', 12, entries=>{ if(entries.length) buildHero(entries); });
+  loadScoreTicker();
+  loadHomeScores();
+  buildSportPills();
+  injectMissingContainers();
+  buildTrending();
+  setTimeout(()=>{ buildDynamicSections(); }, 800);
+  window.openLabel = openLabel; window.openPost = openPost; window.switchTab = switchTab; window.clearSearch = clearSearch; window.updateProfileStats = updateProfileStats;
+  window.heroPlay = () => { if(heroEntries[heroIndex]) openPost(heroEntries[heroIndex].link.find(l=>l.rel==='alternate')?.href); };
+  document.getElementById('hero-play-btn')?.addEventListener('click',()=>window.heroPlay());
+</script>
+</body>
+</html>
