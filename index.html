@@ -718,7 +718,7 @@ function loadHomeScores() {
   const container=document.getElementById('home-scores');
   const leagues=[
     {url:'https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard',name:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League',label:'Premier League'},
-    {url:'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',name:'🏀 NBA',label:'NBA'},
+    {url:'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',name:'🏀 NBA',label:'nba'},
   ];
   let totalShown=0;
   leagues.forEach(ls=>{
@@ -761,7 +761,7 @@ function loadTodayEvents() {
   const container=document.getElementById('today-events-wrap');
   const eventDefs=[
     {sport:'soccer',key:'eng.1',emoji:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',label:'Premier League'},
-    {sport:'basketball',key:'nba',emoji:'🏀',label:'NBA'},
+    {sport:'basketball',key:'nba',emoji:'🏀',label:'nba'},
     {sport:'soccer',key:'uefa.champions',emoji:'⭐',label:'UCL'},
     {sport:'soccer',key:'esp.1',emoji:'🇪🇸',label:'La Liga'},
   ];
