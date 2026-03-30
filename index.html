@@ -799,14 +799,14 @@ function loadTodayEvents() {
 const LEAGUES=[
   {name:'EPL',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Premier_League.svg/250px-Premier_League.svg.png',label:'Premier League'},
   {name:'UCL',img:'https://static.vecteezy.com/system/resources/previews/010/994/306/non_2x/champions-league-logo-symbol-white-design-football-european-countries-football-teams-illustration-with-blue-background-free-vector.jpg',label:'champions league'},
-  {name:'LaLiga',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/LaLiga_2023_Horizontal_Logo.svg/960px-LaLiga_2023_Horizontal_Logo.svg.png',label:'laliga'},
-  {name:'Ligue 1',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Ligue_1_McDonald%27s_logo.svg/960px-Ligue_1_McDonald%27s_logo.svg.png',label:'ligue 1'},
+  {name:'LaLiga',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/LaLiga_2023_Horizontal_Logo.svg/960px-LaLiga_2023_Horizontal_Logo.svg.png',label:'la liga'},
+  {name:'Ligue 1',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Ligue_1_McDonald%27s_logo.svg/960px-Ligue_1_McDonald%27s_logo.svg.png',label:'french League'},
   {name:'Serie A',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Serie_A_Made_in_Italy_logo.svg/500px-Serie_A_Made_in_Italy_logo.svg.png',label:'serie a'},
-  {name:'Bundesliga',img:'https://upload.wikimedia.org/wikinews/en/thumb/1/15/Bundesliga_logo.svg/960px-Bundesliga_logo.svg.png',label:'bundesliga'},
+  {name:'Bundesliga',img:'https://upload.wikimedia.org/wikinews/en/thumb/1/15/Bundesliga_logo.svg/960px-Bundesliga_logo.svg.png',label:'Bundesliga'},
   {name:'F1',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/F1.svg/500px-F1.svg.png',label:'F1'},
   {name:'MotoGP',img:'https://icons.veryicon.com/png/Game/Mega%20Games%20Pack%2018/MotoGP%202%201.png',label:'MotoGP'},
   {name:'UFC',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/UFC_Logo.svg/1920px-UFC_Logo.svg.png',label:'ufc'},
-  {name:'NBA',img:'https://upload.wikimedia.org/wikipedia/en/thumb/0/03/National_Basketball_Association_logo.svg/400px-National_Basketball_Association_logo.svg.png',label:'NBA'},
+  {name:'NBA',img:'https://upload.wikimedia.org/wikipedia/en/thumb/0/03/National_Basketball_Association_logo.svg/400px-National_Basketball_Association_logo.svg.png',label:'nba'},
   {name:'WWE',img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/WWE_official_logo.svg/1280px-WWE_official_logo.svg.png',label:'wwe'},
   {name:'Tennis',img:'https://upload.wikimedia.org/wikipedia/fr/3/33/Logo_ATP_2025.svg',label:'tennis'},
 ];
@@ -916,7 +916,7 @@ function buildDynamicSections() {
   if(dynamicSectionsCreated)return;
   fetchFeed('all',80,entries=>{
     allPostsCache=entries;
-    const fixed=['premier league','champions league','f1','motogp','nba','ufc','wwe','nfl','laliga','serie a','bundesliga','ligue 1','tennis','cricket','rugby','nhl','golf','boxing'];
+    const fixed=['premier league','champions league','f1','motogp','nba','ufc','wwe','nfl','la liga','serie a','Bundesliga','french League','tennis','cricket','rugby','nhl','golf','boxing'];
     const labelMap=new Map();
     entries.forEach(e=>{
       const lbl=getLabel(e);
@@ -951,13 +951,13 @@ function loadLiveScreen() {
   const leagues=[
     {sport:'soccer',key:'eng.1',name:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League',label:'Premier League'},
     {sport:'soccer',key:'uefa.champions',name:'⭐ Champions League',label:'champions league'},
-    {sport:'soccer',key:'esp.1',name:'🇪🇸 La Liga',label:'laliga'},
+    {sport:'soccer',key:'esp.1',name:'🇪🇸 La Liga',label:'la liga'},
     {sport:'soccer',key:'ita.1',name:'🇮🇹 Serie A',label:'serie a'},
-    {sport:'soccer',key:'ger.1',name:'🇩🇪 Bundesliga',label:'bundesliga'},
-    {sport:'soccer',key:'fra.1',name:'🇫🇷 Ligue 1',label:'ligue 1'},
-    {sport:'basketball',key:'nba',name:'🏀 NBA',label:'NBA'},
+    {sport:'soccer',key:'ger.1',name:'🇩🇪 Bundesliga',label:'Bundesliga'},
+    {sport:'soccer',key:'fra.1',name:'🇫🇷 Ligue 1',label:'french League'},
+    {sport:'basketball',key:'nba',name:'🏀 NBA',label:'nba'},
     {sport:'football',key:'nfl',name:'🏈 NFL',label:'NFL'},
-    {sport:'mma',key:'ufc',name:'🥊 UFC',label:'ufc'},
+    {sport:'mma',key:'ufc',name:'🥊 UFC',label:'UFC'},
     {sport:'hockey',key:'nhl',name:'🏒 NHL',label:'NHL'},
   ];
   let loaded=0; let anyShown=false;
@@ -1027,14 +1027,14 @@ function loadLivePosts() {
 const ALL_SPORTS=[
   {emoji:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',name:'Premier League',label:'Premier League'},
   {emoji:'⭐',name:'Champions Lg',label:'champions league'},
-  {emoji:'🇪🇸',name:'La Liga',label:'laliga'},
+  {emoji:'🇪🇸',name:'La Liga',label:'la liga'},
   {emoji:'🇮🇹',name:'Serie A',label:'serie a'},
-  {emoji:'🇩🇪',name:'Bundesliga',label:'bundesliga'},
-  {emoji:'🇫🇷',name:'Ligue 1',label:'ligue 1'},
+  {emoji:'🇩🇪',name:'Bundesliga',label:'Bundesliga'},
+  {emoji:'🇫🇷',name:'Ligue 1',label:'french League'},
   {emoji:'🏎️',name:'Formula 1',label:'F1'},
   {emoji:'🏍️',name:'MotoGP',label:'MotoGP'},
   {emoji:'🏈',name:'NFL',label:'NFL'},
-  {emoji:'🏀',name:'NBA',label:'NBA'},
+  {emoji:'🏀',name:'NBA',label:'nba'},
   {emoji:'🥊',name:'UFC/MMA',label:'ufc'},
   {emoji:'💪',name:'WWE',label:'wwe'},
   {emoji:'🥋',name:'Boxing',label:'Boxing'},
@@ -1101,9 +1101,9 @@ function clearSearch(){
 function buildTrending(){
   const trends=[
     {label:'Premier League',icon:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-    {label:'UCL',icon:'⭐'},
+    {label:'Champions League',icon:'⭐'},
     {label:'F1',icon:'🏎️'},
-    {label:'NBA',icon:'🏀'},
+    {label:'nba',icon:'🏀'},
     {label:'UFC',icon:'🥊'},
     {label:'WWE',icon:'💪'},
     {label:'MotoGP',icon:'🏍️'},
