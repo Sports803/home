@@ -427,58 +427,8 @@ async function fetchProxied(url) {
 }
 
 // ---- THE NEW MASTER RESOLVE FUNCTION ----
-async function resolveStream(url) {
-    const cacheKey = 'sp_resolve_' + url;
-    try {
-        const cached = sessionStorage.getItem(cacheKey);
-        if (cached) {
-            const data = JSON.parse(cached);
-            if (Date.now() - data._ts < 60000) return data;
-        }
-    } catch(e) {}
 
-    // Direct M3U8/MPD
-    if (/\.m3u8([?&#]|$)/i.test(url)) return { type: 'hls', url, originalUrl: url };
-    if (/\.mpd([?&#]|$)/i.test(url)) return { type: 'dash', url, originalUrl: url };
-
-    // Direct !! key
-    if (url.includes('!!')) {
-        const idx = url.indexOf('!!');
-        const manifest = url.slice(0, idx);
-        const keyPart = url.slice(idx + 2);
-        if (keyPart.includes(':')) {
-            const sep = keyPart.indexOf(':');
-            const drm = { keyId: keyPart.slice(0, sep), key: keyPart.slice(sep + 1) };
-            const type = /\.mpd/i.test(manifest) ? 'dash' : 'hls';
-            const result = { type, url: manifest, drm, originalUrl: url };
-            try { sessionStorage.setItem(cacheKey, JSON.stringify({ ...result, _ts: Date.now() })); } catch(e) {}
-            return result;
-        }
-    }
-
-    // Kafeizhibo special handling (preserved from original)
-    if (/kafeizhibo\.com\/(?:pc\/)?room\/\d+/.test(url)) {
-        try {
-            const html = await fetchProxied(url);
-            const configMatch = html.match(/(?:var|const|let)\s+config\s*=\s*({[\s\S]{0,2000}?})\s*;/);
-            if (configMatch) {
-                const evalFunc = new Function('return ' + configMatch[1] + ';');
-                const parsed = evalFunc();
-                const found = deepFind(parsed);
-                if (found) {
-                    const type = /\.m3u8/i.test(found) ? 'hls' : 'dash';
-                    const result = { type, url: found, originalUrl: url };
-                    try { sessionStorage.setItem(cacheKey, JSON.stringify({ ...result, _ts: Date.now() })); } catch(e) {}
-                    return result;
-                }
-            }
-        } catch(e) {}
-        // Fallback to embed
-        return { type: 'embed', url, embedUrls: [url], originalUrl: url };
-    }
-
-    // ---- Fetch HTML and scrape ----
-    let html = await fetchProxied(url);
+async function resolveStreamFromHtml(html, url) {
     let manifestUrl = null;
     let drm = null;
 
@@ -509,17 +459,14 @@ async function resolveStream(url) {
         }
     }
 
-    // 3. React __INITIAL_STATE__
+    // 3. JWPlayer setup pattern (New for sportsnews.id)
     if (!manifestUrl) {
-        const stateMatch = html.match(/window\.__INITIAL_STATE__\s*=\s*({[\s\S]{0,2000}?});/);
-        if (stateMatch) {
+        const jwMatch = html.match(/jwplayer\s*\(\s*["'][^"']+["']\s*\)\.setup\s*\(\s*({[\s\S]{0,2000}?})\s*\)/);
+        if (jwMatch) {
             try {
-                const evalFunc = new Function('return ' + stateMatch[1] + ';');
-                const parsed = evalFunc();
-                const found = deepFind(parsed);
-                if (found) manifestUrl = found;
-                const key = extractClearKeyFromAny(parsed);
-                if (key) drm = key;
+                const setupText = jwMatch[1];
+                const fileMatch = setupText.match(/file\s*:\s*["'](https?:\/\/[^"']+\.(?:m3u8|mpd)[^"']*)["']/);
+                if (fileMatch) manifestUrl = fileMatch[1];
             } catch(e) {}
         }
     }
@@ -538,75 +485,67 @@ async function resolveStream(url) {
         }
     }
 
-    // 5. Base64 decode
-    if (!manifestUrl) {
-        const b64Matches = html.match(/atob\s*\(\s*["']([A-Za-z0-9+/=]{30,})["']\s*\)/g);
-        if (b64Matches) {
-            for (const b64 of b64Matches) {
-                try {
-                    const inner = b64.match(/["']([A-Za-z0-9+/=]{30,})["']/);
-                    if (inner) {
-                        const decoded = atob(inner[1]);
-                        if (decoded.includes('.m3u8') || decoded.includes('.mpd')) {
-                            manifestUrl = decoded;
-                            break;
-                        }
-                    }
-                } catch(e) {}
-            }
+    if (manifestUrl) {
+        return {
+            type: manifestUrl.includes('.m3u8') ? 'hls' : 'dash',
+            url: manifestUrl,
+            drm: drm || null
+        };
+    }
+    return null;
+}
+
+async function resolveStream(url) {
+    const cacheKey = 'sp_resolve_' + url;
+    try {
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached) {
+            const data = JSON.parse(cached);
+            if (Date.now() - data._ts < 60000) return data;
+        }
+    } catch(e) {}
+
+    if (/\.m3u8([?&#]|$)/i.test(url)) return { type: 'hls', url, originalUrl: url };
+    if (/\.mpd([?&#]|$)/i.test(url)) return { type: 'dash', url, originalUrl: url };
+
+    if (url.includes('!!')) {
+        const idx = url.indexOf('!!');
+        const manifest = url.slice(0, idx);
+        const keyPart = url.slice(idx + 2);
+        if (keyPart.includes(':')) {
+            const sep = keyPart.indexOf(':');
+            const drm = { keyId: keyPart.slice(0, sep), key: keyPart.slice(sep + 1) };
+            const type = /\.mpd/i.test(manifest) ? 'dash' : 'hls';
+            const result = { type, url: manifest, drm, originalUrl: url };
+            try { sessionStorage.setItem(cacheKey, JSON.stringify({ ...result, _ts: Date.now() })); } catch(e) {}
+            return result;
         }
     }
 
-    if (!manifestUrl) {
-        throw new Error('No stream URL found. The site may use Widevine L1 or require login.');
-    }
-
-    // ---- Fetch M3U8 AES-128 Key ----
-    let m3u8Key = null;
-    if (manifestUrl.includes('.m3u8')) {
-        try {
-            const manifestText = await fetchProxied(manifestUrl);
-            const keyLine = manifestText.match(/#EXT-X-KEY[^:]*:URI="([^"]+)"/);
-            if (keyLine) {
-                let keyUri = keyLine[1];
-                try {
-                    const base = new URL(manifestUrl);
-                    keyUri = new URL(keyUri, base).href;
-                } catch(e) {}
-                const keyResponse = await fetchProxied(keyUri);
-                if (/^[0-9a-fA-F]{32}$/.test(keyResponse.trim())) {
-                    m3u8Key = keyResponse.trim();
-                } else {
-                    const encoder = new TextEncoder();
-                    const bytes = encoder.encode(keyResponse);
-                    const uint8 = new Uint8Array(bytes.length);
-                    for (let i = 0; i < bytes.length; i++) uint8[i] = bytes[i];
-                    m3u8Key = Array.from(uint8).map(b => b.toString(16).padStart(2, '0')).join('');
-                }
-            }
-            if (!m3u8Key) {
-                const qKey = manifestUrl.match(/[?&]key=([0-9a-fA-F]{32})/i);
-                if (qKey) m3u8Key = qKey[1];
-            }
-        } catch(e) {
-            console.warn('[Scraper] M3U8 key fetch failed:', e.message);
+    let html = await fetchProxied(url);
+    let result = await resolveStreamFromHtml(html, url);
+    
+    // If not found, try recursive iframe check
+    if (!result) {
+        const iframeMatch = html.match(/<iframe[^>]+src=["'](https?:\/\/[^"']+)["']/i);
+        if (iframeMatch && iframeMatch[1] !== url) {
+            try {
+                const iframeHtml = await fetchProxied(iframeMatch[1]);
+                result = await resolveStreamFromHtml(iframeHtml, iframeMatch[1]);
+            } catch(e) {}
         }
     }
 
-    const finalDrm = drm || (m3u8Key ? { keyId: '0'.repeat(32), key: m3u8Key } : null);
+    if (!result) {
+        throw new Error('No stream URL found.');
+    }
 
-    const result = {
-        type: manifestUrl.includes('.m3u8') ? 'hls' : 'dash',
-        url: manifestUrl,
-        originalUrl: url,
-        drm: finalDrm || null,
-        referrer: url
-    };
-
+    result.originalUrl = url;
+    result.referrer = url;
     try { sessionStorage.setItem(cacheKey, JSON.stringify({ ...result, _ts: Date.now() })); } catch(e) {}
-
     return result;
 }
+
 
 
 // ====================================================================
